@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -69,6 +70,8 @@ namespace Microsoft.Azure.WebJobs.Script.Workers
             using (_metricsLogger.LatencyEvent(MetricEventNames.ProcessStart))
             {
                 Process = CreateWorkerProcess();
+                Process.StartInfo.EnvironmentVariables["DOTNET_JitDisasmSummary"] = "1";
+                //Process.StartInfo.EnvironmentVariables["DOTNET_TieredPGO"] = "0";
                 if (_environment.IsAnyLinuxConsumption())
                 {
                     AssignUserExecutePermissionsIfNotExists();
@@ -83,6 +86,7 @@ namespace Microsoft.Azure.WebJobs.Script.Workers
 
                     _workerProcessLogger?.LogDebug($"Starting worker process with FileName:{Process.StartInfo.FileName} WorkingDirectory:{Process.StartInfo.WorkingDirectory} Arguments:{Process.StartInfo.Arguments}");
                     Process.Start();
+                    Console.WriteLine($"Started {Process.StartInfo.FileName} : {Process.Id}");
                     _workerProcessLogger?.LogDebug($"{Process.StartInfo.FileName} process with Id={Process.Id} started");
 
                     Process.BeginErrorReadLine();
@@ -192,6 +196,7 @@ namespace Microsoft.Azure.WebJobs.Script.Workers
         {
             if (e.Data != null)
             {
+                File.AppendAllText(@"E:\features\startup_experiments\11-02\LocalFunctionsNetHost\functionapp44_composite.log", e.Data + Environment.NewLine);
                 BuildAndLogConsoleLog(e.Data, LogLevel.Information);
             }
         }
