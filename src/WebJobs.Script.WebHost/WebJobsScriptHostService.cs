@@ -824,15 +824,15 @@ namespace Microsoft.Azure.WebJobs.Script.WebHost
             _applicationLifetime.ApplicationStopping.Register(() =>
             {
                 Interlocked.Exchange(ref _applicationStopping, 1);
-                if (_environment.DrainOnApplicationStoppingEnabled())
-                {
-                    var drainModeManager = _host?.Services.GetService<IDrainModeManager>();
-                    if (drainModeManager != null)
-                    {
-                        _logger.LogDebug("Application Stopping: initiate drain mode");
-                        drainModeManager.EnableDrainModeAsync(CancellationToken.None);
-                    }
-                }
+                //if (_environment.DrainOnApplicationStoppingEnabled())
+                //{
+                //    var drainModeManager = _host?.Services.GetService<IDrainModeManager>();
+                //    if (drainModeManager != null)
+                //    {
+                //        _logger.LogDebug("Application Stopping: initiate drain mode");
+                //        drainModeManager.EnableDrainModeAsync(CancellationToken.None);
+                //    }
+                //}
             });
 
             _applicationLifetime.ApplicationStopped.Register(() =>

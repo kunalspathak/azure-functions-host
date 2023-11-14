@@ -70,8 +70,14 @@ namespace Microsoft.Azure.WebJobs.Script.Workers
             using (_metricsLogger.LatencyEvent(MetricEventNames.ProcessStart))
             {
                 Process = CreateWorkerProcess();
-                Process.StartInfo.EnvironmentVariables["DOTNET_JitDisasmSummary"] = "1";
-                //Process.StartInfo.EnvironmentVariables["DOTNET_TieredPGO"] = "0";
+                string[] customEnvVariables = File.ReadAllLines(@"E:\features\startup_experiments\11-13\envvars.txt");
+                foreach (string customEnvVar in customEnvVariables)
+                {
+                    string[] envVar = customEnvVar.Trim().Split("=", StringSplitOptions.RemoveEmptyEntries);
+                    Process.StartInfo.EnvironmentVariables[envVar[0]] = envVar[1];
+                    Console.WriteLine(customEnvVar);
+                }
+
                 if (_environment.IsAnyLinuxConsumption())
                 {
                     AssignUserExecutePermissionsIfNotExists();
@@ -196,7 +202,7 @@ namespace Microsoft.Azure.WebJobs.Script.Workers
         {
             if (e.Data != null)
             {
-                File.AppendAllText(@"E:\features\startup_experiments\11-02\LocalFunctionsNetHost\functionapp44_composite.log", e.Data + Environment.NewLine);
+                File.AppendAllText(@"E:\features\startup_experiments\11-13\r2r_composite.log", e.Data + Environment.NewLine);
                 BuildAndLogConsoleLog(e.Data, LogLevel.Information);
             }
         }
