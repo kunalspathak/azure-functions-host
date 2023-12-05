@@ -65,18 +65,28 @@ namespace Microsoft.Azure.WebJobs.Script.Workers
 
         internal abstract Process CreateWorkerProcess();
 
+        private static string logFile = @"E:\features\startup_experiments\11-28\r2r_composite.log";
         public Task StartProcessAsync()
         {
             using (_metricsLogger.LatencyEvent(MetricEventNames.ProcessStart))
             {
                 Process = CreateWorkerProcess();
-                string[] customEnvVariables = File.ReadAllLines(@"E:\features\startup_experiments\11-13\envvars.txt");
+                string[] customEnvVariables = File.ReadAllLines(@"E:\features\startup_experiments\11-28\envvars.txt");
+                File.AppendAllText(logFile, "-----------------------------------------" + Environment.NewLine);
+
                 foreach (string customEnvVar in customEnvVariables)
                 {
                     string[] envVar = customEnvVar.Trim().Split("=", StringSplitOptions.RemoveEmptyEntries);
-                    Process.StartInfo.EnvironmentVariables[envVar[0]] = envVar[1];
-                    Console.WriteLine(customEnvVar);
+                    string name = envVar[0];
+                    string value = envVar[1];
+                    if (name.StartsWith("DOTNET_"))
+                    {
+                        Process.StartInfo.EnvironmentVariables[name] = value;
+                        Console.WriteLine(customEnvVar);
+                        File.AppendAllText(logFile, customEnvVar + Environment.NewLine);
+                    }
                 }
+                Console.WriteLine("----------------------------");
 
                 if (_environment.IsAnyLinuxConsumption())
                 {
@@ -202,7 +212,7 @@ namespace Microsoft.Azure.WebJobs.Script.Workers
         {
             if (e.Data != null)
             {
-                File.AppendAllText(@"E:\features\startup_experiments\11-13\r2r_composite.log", e.Data + Environment.NewLine);
+                File.AppendAllText(logFile, e.Data + Environment.NewLine);
                 BuildAndLogConsoleLog(e.Data, LogLevel.Information);
             }
         }

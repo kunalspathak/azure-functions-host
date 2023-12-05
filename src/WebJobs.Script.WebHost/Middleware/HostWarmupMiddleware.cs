@@ -151,6 +151,7 @@ namespace Microsoft.Azure.WebJobs.Script.WebHost.Middleware
                 // When this happens, we will need to regenerate the coldstart.jittrace file.
                 _logger.LogInformation(new EventId(100, "PreJit"),
                     $"PreJIT Successful prepares: {successfulPrepares}, Failed prepares: {failedPrepares} FileName = {jitTraceFileName}");
+                Console.WriteLine("warmed-up");
             }
         }
 
