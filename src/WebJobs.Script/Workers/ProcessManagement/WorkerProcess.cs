@@ -71,22 +71,26 @@ namespace Microsoft.Azure.WebJobs.Script.Workers
             using (_metricsLogger.LatencyEvent(MetricEventNames.ProcessStart))
             {
                 Process = CreateWorkerProcess();
-                string[] customEnvVariables = File.ReadAllLines(@"E:\features\startup_experiments\11-28\envvars.txt");
-                File.AppendAllText(logFile, "-----------------------------------------" + Environment.NewLine);
-
-                foreach (string customEnvVar in customEnvVariables)
+                string envVarFile = @"E:\features\startup_experiments\11-28\envvars.txt";
+                if (File.Exists(envVarFile))
                 {
-                    string[] envVar = customEnvVar.Trim().Split("=", StringSplitOptions.RemoveEmptyEntries);
-                    string name = envVar[0];
-                    string value = envVar[1];
-                    if (name.StartsWith("DOTNET_"))
+                    string[] customEnvVariables = File.ReadAllLines(envVarFile);
+                    File.AppendAllText(logFile, "-----------------------------------------" + Environment.NewLine);
+
+                    foreach (string customEnvVar in customEnvVariables)
                     {
-                        Process.StartInfo.EnvironmentVariables[name] = value;
-                        Console.WriteLine(customEnvVar);
-                        File.AppendAllText(logFile, customEnvVar + Environment.NewLine);
+                        string[] envVar = customEnvVar.Trim().Split("=", StringSplitOptions.RemoveEmptyEntries);
+                        string name = envVar[0];
+                        string value = envVar[1];
+                        if (name.StartsWith("DOTNET_"))
+                        {
+                            Process.StartInfo.EnvironmentVariables[name] = value;
+                            Console.WriteLine(customEnvVar);
+                            File.AppendAllText(logFile, customEnvVar + Environment.NewLine);
+                        }
                     }
+                    Console.WriteLine("----------------------------");
                 }
-                Console.WriteLine("----------------------------");
 
                 if (_environment.IsAnyLinuxConsumption())
                 {
